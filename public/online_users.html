@@ -1,0 +1,256 @@
+
+
+<!-- online_users.html -->
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Users</title>
+</head>
+<body>
+    <h2>Online Users</h2>
+    <p id="userStatus"></p>
+    <ul id="userList"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+            const userList = document.getElementById('userList');
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+
+            // Display the username in a paragraph
+            const userStatus = document.getElementById('userStatus');
+            userStatus.textContent = `Welcome, ${username}!`;
+
+            socket.on('connect', () => {
+                // Emit a login event with the username
+                socket.emit('login', username);
+            });
+
+            // Update user list on login/logout events
+            socket.on('userStatus', (data) => {   
+                const existingListItem = document.getElementById(data.username);
+
+                if (existingListItem) {
+                    // Update existing user status
+                    existingListItem.textContent = `${data.username} is ${data.online ? 'online' : 'offline'}`;
+                } else {
+                    // Add a new user to the list
+                    const listItem = document.createElement('li');
+                    listItem.id = data.username;
+                    listItem.textContent = `${data.username} is ${data.online ? 'online' : 'offline'}`;
+                    userList.appendChild(listItem);
+                }
+            });
+
+            // Emit logout event on window unload and beforeunload
+            const emitLogout = () => {
+                socket.emit('logout', username);
+            };
+
+            window.addEventListener('beforeunload', emitLogout);
+            window.addEventListener('unload', emitLogout);
+
+            socket.on('message', function (data) {
+                if (data.type === 'login') {
+                    // Display a message that a specific username is online
+                    if (data.username === username) {
+                        const userStatus = document.getElementById('userStatus');
+                        userStatus.textContent = `${username} is now online`;
+                    }
+                } else if (data.type === 'logout') {
+                    // Handle logout event
+                    const userStatus = document.getElementById('userStatus');
+                    userStatus.textContent = `${data.username} is now offline`;
+                }
+            });
+
+            socket.on('status', function (data) {
+                if (data.type === 'online') {
+                    // Display a message that a specific username is online
+                    const userStatus = document.getElementById('userStatus');
+                    userStatus.textContent = `${data.username} is now online`;
+                } else if (data.type === 'offline') {
+                    // Display a message that a specific username is offline
+                    const userStatus = document.getElementById('userStatus');
+                    userStatus.textContent = `${data.username} is now offline`;
+                }
+            });
+
+            socket.on('userList', function (userList) {
+                // Update the user list on receiving the global user array
+                const userListElement = document.getElementById('userList');
+                userListElement.innerHTML = ''; // Clear the list before updating
+                userList.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${user.username} is ${user.online ? 'online' : 'offline'}`;
+                    userListElement.appendChild(listItem);
+                });
+            });
+        });
+    </script>
+</body>
+</html>  -->
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+           
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Users</title>
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+}
+
+h2 {
+    text-align: center;
+    color: #333;
+}
+
+#userList {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+li {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    text-align: center;
+}
+
+script {
+    margin-top: 20px;
+}
+    </style>
+</head>
+<body>
+    <h2>Online Users</h2>
+    <ul id="userList"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const socket = io();
+            const userList = document.getElementById('userList');
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+
+            // Use localStorage to store the logout status across tabs
+            const logoutStatusKey = 'logoutStatus';
+            localStorage.removeItem(logoutStatusKey);  // Clear the status on page load
+
+            socket.on('connect', () => {
+                // Emit a login event with the username
+                socket.emit('login', username);
+            });
+
+            // Update user list on login/logout events   
+            socket.on('userStatus', (data) => {
+                const existingListItem = document.getElementById(data.username);
+
+                if (existingListItem) {
+                    // Update existing user status or remove if offline
+                    if (data.online) {
+                        existingListItem.textContent = `${data.username} is online`;
+                    } else {
+                        // Check if the user logged out in another tab
+                        const logoutStatus = localStorage.getItem(logoutStatusKey);
+                        existingListItem.textContent = `${data.username} is ${logoutStatus === 'true' ? 'offline' : 'online'}`;
+                    }
+                } else if (data.online) {
+                    // Add a new online user to the list
+                    const listItem = document.createElement('li');
+                    listItem.id = data.username;
+                    listItem.textContent = `${data.username} is online`;
+                    userList.appendChild(listItem);
+                }
+            });
+
+            // Emit logout event on window unload and beforeunload   
+            const emitLogout = () => {
+                // Notify other tabs about the logout
+                localStorage.setItem(logoutStatusKey, 'true');
+                socket.emit('logout', username);
+            };
+
+            window.addEventListener('beforeunload', emitLogout);
+            window.addEventListener('unload', emitLogout);
+
+            socket.on('message', function (data) {
+                if (data.type === 'login') {
+                    // Display a message that a specific username is online
+                } else if (data.type === 'logout') {
+                    // Handle logout event
+                    const userItem = document.getElementById(data.username);
+                    if (userItem) {
+                        // Update user status to offline
+                        userItem.textContent = `${data.username} is offline`;
+                    }
+                }
+            });
+
+            socket.on('userList', function (onlineUsers) {
+                // Update the user list on receiving the online user array
+                const userListElement = document.getElementById('userList');
+                userListElement.innerHTML = ''; // Clear the list before updating
+                onlineUsers.forEach(user => {
+                    const listItem = document.createElement('li');
+                    listItem.id = user.username;
+                    listItem.textContent = `${user.username} is online`;
+                    userListElement.appendChild(listItem);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
+
+
+
+
+
+
+
+
+
+

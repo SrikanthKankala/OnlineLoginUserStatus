@@ -1,0 +1,16 @@
+{
+  "name": "online-login",
+  "version": "1.0.0",
+  "description": "Online login system with Socket.io",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.18.2",
+    "http": "0.0.1-security",
+    "mysql": "^2.18.1",
+    "socket.io": "^4.7.3"
+  }
+}
